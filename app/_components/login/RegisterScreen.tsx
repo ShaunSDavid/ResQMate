@@ -14,13 +14,15 @@ type RootStackParamList = {
   Login: undefined;
   Register: undefined;
 };
-type NavigationProp = StackNavigationProp<RootStackParamList, "Login">;
 
-const LoginScreen = () => {
+type NavigationProp = StackNavigationProp<RootStackParamList, "Register">;
+const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [form, setForm] = useState({
+    name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -28,18 +30,30 @@ const LoginScreen = () => {
   };
 
   const handleSubmit = () => {
-    if (!form.email || !form.password) {
-      Alert.alert("Error", "Please enter all the credentials.");
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+      Alert.alert("Error", "Please fill in all fields.");
+    } else if (form.password !== form.confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
     } else {
-      Alert.alert("Success", "Welcome!");
+      Alert.alert("Success", "Registration successful!");
+      navigation.navigate("Login");
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <Text style={styles.subtitle}>Enter your credentials to continue</Text>
+      <Text style={styles.title}>Register</Text>
+      <Text style={styles.subtitle}>
+        Create an account to start using ResQmate
+      </Text>
 
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        placeholderTextColor="#888"
+        value={form.name}
+        onChangeText={(e) => handleInputChange("name", e)}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -55,16 +69,24 @@ const LoginScreen = () => {
         value={form.password}
         onChangeText={(e) => handleInputChange("password", e)}
       />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm Password"
+        placeholderTextColor="#888"
+        secureTextEntry
+        value={form.confirmPassword}
+        onChangeText={(e) => handleInputChange("confirmPassword", e)}
+      />
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.signupButton}
-        onPress={() => navigation.navigate("Register")}
+        style={styles.loginButton}
+        onPress={() => navigation.navigate("Login")}
       >
-        <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
+        <Text style={styles.loginText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -113,14 +135,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  signupButton: {
+  loginButton: {
     marginTop: 20,
   },
-  signupText: {
+  loginText: {
     fontSize: 14,
     color: "#0F6D66",
     textDecorationLine: "underline",
   },
 });
 
-export default LoginScreen;
+export default RegisterScreen;
