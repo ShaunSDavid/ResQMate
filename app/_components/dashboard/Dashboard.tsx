@@ -9,8 +9,24 @@ import {
   Image,
 } from "react-native";
 const { width } = Dimensions.get("window");
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+
+type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+  Register: undefined;
+  Dashboard: undefined;
+  FirstAidList: undefined;
+  FirstAid: { type: string };
+  ProfilePage: undefined;
+  EditInfo: undefined;
+};
+
+type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
 
 const Dashboard = () => {
+  const navigation = useNavigation<NavigationProp>();
   return (
     <View style={styles.container}>
       {/* Header Section */}
@@ -35,22 +51,40 @@ const Dashboard = () => {
             {
               name: "Symptom Check",
               icon: require("@/assets/icons/symptom-icon.png"),
+              route: "FirstAidList",
             },
-            { name: "SoS", icon: require("@/assets/icons/sos-icon.png") },
+            {
+              name: "SoS",
+              icon: require("@/assets/icons/sos-icon.png"),
+              route: "Dashboard",
+            },
             {
               name: "Image Sensing",
               icon: require("@/assets/icons/image-sensing-icon.png"),
+              route: "Dashboard",
             },
             {
               name: "Voice Command",
               icon: require("@/assets/icons/voice-command-icon.png"),
+              route: "Dashboard",
             },
             {
               name: "Hospital",
               icon: require("@/assets/icons/hospital-icon.png"),
+              route: "Dashboard",
             },
           ].map((category, index) => (
-            <TouchableOpacity key={index} style={styles.categoryItem}>
+            <TouchableOpacity
+              key={index}
+              style={styles.categoryItem}
+              onPress={() => {
+                if (category.route == "FirstAidList") {
+                  navigation.navigate("FirstAidList");
+                } else {
+                  navigation.navigate("Dashboard");
+                }
+              }}
+            >
               <Image
                 source={category.icon}
                 style={styles.categoryIcon}
