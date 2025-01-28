@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 
-const profileImg = require("../assets/images/photo.jpeg");
+const profileImg = require("@/assets/images/photo.jpeg");
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
