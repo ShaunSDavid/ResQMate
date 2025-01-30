@@ -21,6 +21,7 @@ type RootStackParamList = {
   FirstAid: { type: string };
   ProfilePage: undefined;
   EditInfo: undefined;
+  Map: undefined;
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
@@ -71,7 +72,7 @@ const Dashboard = () => {
             {
               name: "Hospital",
               icon: require("@/assets/icons/hospital-icon.png"),
-              route: "Dashboard",
+              route: "Map",
             },
           ].map((category, index) => (
             <TouchableOpacity
@@ -80,6 +81,8 @@ const Dashboard = () => {
               onPress={() => {
                 if (category.route == "FirstAidList") {
                   navigation.navigate("FirstAidList");
+                } else if (category.route == "Map") {
+                  navigation.navigate("Map");
                 } else {
                   navigation.navigate("Dashboard");
                 }
