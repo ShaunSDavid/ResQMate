@@ -8,6 +8,8 @@ import FirstAid from "./_components/aid/FirstAid";
 import ProfilePage from "./_components/profile/ProfilePage";
 import EditInfo from "./_components/profile/EditInfo";
 import FirstAidList from "./_components/aid/FirstAidList";
+import MapScreen from "./_components/location/MapScreen";
+
 const Stack = createStackNavigator();
 
 const EntryNavigation = () => {
@@ -26,6 +28,7 @@ const EntryNavigation = () => {
       <Stack.Screen name="FirstAid" component={FirstAid} />
       <Stack.Screen name="FirstAidList" component={FirstAidList} />
       <Stack.Screen name="EditInfo" component={EditInfo} />
+      <Stack.Screen name="Map" component={MapScreen} />
     </Stack.Navigator>
   );
 };
