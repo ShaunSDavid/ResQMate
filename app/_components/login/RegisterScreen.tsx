@@ -6,9 +6,12 @@ import {
   Text,
   View,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { FIREBASE_AUTH } from "@/FirebaseConfig";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 type RootStackParamList = {
   Login: undefined;
@@ -18,6 +21,8 @@ type RootStackParamList = {
 type NavigationProp = StackNavigationProp<RootStackParamList, "Register">;
 const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -29,14 +34,26 @@ const RegisterScreen = () => {
     setForm({ ...form, [field]: value });
   };
 
-  const handleSubmit = () => {
+  const handleRegister = async () => {
+    setLoading(true);
     if (!form.name || !form.email || !form.password || !form.confirmPassword) {
       Alert.alert("Error", "Please fill in all fields.");
     } else if (form.password !== form.confirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
     } else {
-      Alert.alert("Success", "Registration successful!");
-      navigation.navigate("Login");
+      try {
+        const response = await createUserWithEmailAndPassword(
+          auth,
+          form.email,
+          form.password
+        );
+        Alert.alert("Success", "Registration successful!");
+        navigation.navigate("Login");
+      } catch (error: any) {
+        alert("Register failed: " + error.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -78,9 +95,13 @@ const RegisterScreen = () => {
         onChangeText={(e) => handleInputChange("confirmPassword", e)}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0F6D66" />
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={styles.loginButton}
