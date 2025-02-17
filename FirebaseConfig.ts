@@ -2,15 +2,17 @@
 import { initializeApp } from "firebase/app";
 import {getAuth} from "firebase/auth";
 import {getFirestore} from "firebase/firestore";
+import Constants from "expo-constants";
 
-// Your web app's Firebase configuration
+const extra = Constants.expoConfig?.extra ?? {};
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDfxYZ7DmTPhlQpELgMk3kPMBg8PeMFhbM",
-  authDomain: "resqmate-c2d11.firebaseapp.com",
-  projectId: "resqmate-c2d11",
-  storageBucket: "resqmate-c2d11.firebasestorage.app",
-  messagingSenderId: "996199384700",
-  appId: "1:996199384700:web:6877b372ef8ad5fb29abf9"
+  apiKey: extra.firebaseApiKey,
+  authDomain: extra.firebaseAuthDomain,
+  projectId: extra.firebaseProjectId,
+  storageBucket: extra.firebaseStorageBucket,
+  messagingSenderId: extra.firebaseMessagingSenderId,
+  appId: extra.firebaseAppId,
 };
 
 // Initialize Firebase
