@@ -6,9 +6,12 @@ import {
   Text,
   View,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { FIREBASE_AUTH } from "@/FirebaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 type RootStackParamList = {
   Login: undefined;
@@ -19,21 +22,28 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "Login">;
 
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
   const handleInputChange = (field: string, value: string) => {
-    setForm({ ...form, [field]: value });
+    if (field === "email") {
+      setEmail(value);
+    } else {
+      setPassword(value);
+    }
   };
 
-  const handleSubmit = () => {
-    if (!form.email || !form.password) {
-      Alert.alert("Error", "Please enter all the credentials.");
-    } else {
-      Alert.alert("Success", "Welcome!");
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
       navigation.navigate("Dashboard");
+    } catch (error: any) {
+      alert("Signin failed: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +56,7 @@ const LoginScreen = () => {
         style={styles.input}
         placeholder="Email"
         placeholderTextColor="#888"
-        value={form.email}
+        value={email}
         onChangeText={(e) => handleInputChange("email", e)}
       />
       <TextInput
@@ -54,13 +64,17 @@ const LoginScreen = () => {
         placeholder="Password"
         placeholderTextColor="#888"
         secureTextEntry
-        value={form.password}
+        value={password}
         onChangeText={(e) => handleInputChange("password", e)}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0F6D66" />
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={styles.signupButton}
