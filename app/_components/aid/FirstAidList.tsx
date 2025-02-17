@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -23,6 +24,24 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "FirstAidList">;
 
 function FirstAidList() {
   const navigation = useNavigation<NavigationProp>();
+
+  // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Data for First Aid types
+  const data = [
+    "Cold/Flu",
+    "Fever",
+    "Cuts/Wounds",
+    "Bruises",
+    "Fractures",
+    "Head Injuries",
+  ];
+
+  // Filtered data based on search query
+  const filteredData = data.filter((type) =>
+    type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -70,6 +89,8 @@ function FirstAidList() {
           style={{ padding: 0, flex: 1, color: "white", fontSize: 16 }}
           placeholder="Find a type"
           placeholderTextColor="white"
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
         />
       </View>
 
@@ -84,29 +105,10 @@ function FirstAidList() {
             margin: 10,
             marginLeft: 15,
             marginTop: 2,
+            flexWrap: "wrap",
           }}
         >
-          {["Cold/Flu", "Fever", "Cuts/Wounds"].map((type) => (
-            <View style={{ flexDirection: "column", margin: 10 }} key={type}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("FirstAid", { type })}
-              >
-                <View
-                  style={{
-                    backgroundColor: "lightblue",
-                    width: 100,
-                    height: 100,
-                    borderRadius: 100,
-                  }}
-                ></View>
-              </TouchableOpacity>
-              <Text style={{ textAlign: "center" }}>{type}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={{ flexDirection: "row", margin: 10, marginLeft: 15 }}>
-          {["Bruises", "Fractures", "Head Injuries"].map((type) => (
+          {filteredData.map((type) => (
             <View style={{ flexDirection: "column", margin: 10 }} key={type}>
               <TouchableOpacity
                 onPress={() => navigation.navigate("FirstAid", { type })}
