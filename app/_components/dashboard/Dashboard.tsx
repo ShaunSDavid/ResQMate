@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  ActivityIndicator,
 } from "react-native";
 const { width } = Dimensions.get("window");
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { FIREBASE_AUTH } from "@/FirebaseConfig";
 
 type RootStackParamList = {
   Home: undefined;
@@ -28,6 +30,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
 
 const Dashboard = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [loading, setLoading] = useState(false);
   return (
     <View style={styles.container}>
       {/* Header Section */}
@@ -98,6 +101,28 @@ const Dashboard = () => {
           ))}
         </View>
       </View>
+      <View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0F6D66" />
+        ) : (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              setLoading(true);
+              try {
+                await FIREBASE_AUTH.signOut();
+                navigation.replace("Login"); // Ensures the user cannot navigate back to Dashboard after logout
+              } catch (error: any) {
+                alert("Logout failed: " + error.message);
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -157,6 +182,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     color: "#666",
+  },
+  button: {
+    width: "100%",
+    padding: 15,
+    backgroundColor: "#0F6D66",
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
