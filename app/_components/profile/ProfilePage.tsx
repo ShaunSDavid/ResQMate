@@ -123,10 +123,7 @@ const ProfilePage = () => {
           }}
           onPress={() => navigation.navigate("EditInfo")}
         >
-          {/* <Link href="/EditInfo">
-            <Text style={{ fontSize: 16, color: "#333" }}>My Information</Text>
-          </Link> */}
-          <Text style={{ fontSize: 16, color: "#333" }}>My Information</Text>
+          <Text style={{ fontSize: 16, color: "#333" }}>Edit Information</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -149,7 +146,7 @@ const ProfilePage = () => {
             setLoading(true);
             try {
               await FIREBASE_AUTH.signOut();
-              navigation.replace("Login"); // Ensures the user cannot navigate back to Dashboard after logout
+              navigation.replace("Login");
             } catch (error: any) {
               alert("Logout failed: " + error.message);
             } finally {
