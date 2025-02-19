@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -35,13 +35,16 @@ function EditInfo() {
   const [age, setAge] = useState("");
 
   const createProfile = async () => {
-    if (!phone) {
-      alert("Please enter a phone number");
+    if (!email) {
+      alert("Please enter your email");
       return;
     }
 
+    const newEmail = email.toLowerCase();
+    setEmail(newEmail);
+
     try {
-      await setDoc(doc(FIREBASE_DB, "users", phone), {
+      await setDoc(doc(FIREBASE_DB, "users", email), {
         name,
         email,
         phone,
