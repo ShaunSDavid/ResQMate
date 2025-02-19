@@ -101,7 +101,8 @@ const Dashboard = () => {
           ))}
         </View>
       </View>
-      <View>
+      {/* Logout Button at Bottom */}
+      <View style={styles.logoutContainer}>
         {loading ? (
           <ActivityIndicator size="large" color="#0F6D66" />
         ) : (
@@ -111,7 +112,7 @@ const Dashboard = () => {
               setLoading(true);
               try {
                 await FIREBASE_AUTH.signOut();
-                navigation.replace("Login"); // Ensures the user cannot navigate back to Dashboard after logout
+                navigation.replace("Login");
               } catch (error: any) {
                 alert("Logout failed: " + error.message);
               } finally {
@@ -195,6 +196,11 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  logoutContainer: {
+    flex: 1, // Takes the remaining space
+    justifyContent: "flex-end", // Pushes the button to the bottom
+    marginBottom: 20, // Adjust space from bottom
   },
 });
 
