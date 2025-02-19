@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { FIREBASE_DB } from "@/FirebaseConfig"; // Import Firestore
+import { doc, setDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   Home: undefined;
@@ -20,23 +22,42 @@ type RootStackParamList = {
   ProfilePage: undefined;
   EditInfo: undefined;
 };
-
 type NavigationProp = StackNavigationProp<RootStackParamList, "EditInfo">;
 
 function EditInfo() {
   const navigation = useNavigation<NavigationProp>();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [age, setAge] = useState("");
+
+  const createProfile = async () => {
+    if (!phone) {
+      alert("Please enter a phone number");
+      return;
+    }
+
+    try {
+      await setDoc(doc(FIREBASE_DB, "users", phone), {
+        name,
+        email,
+        phone,
+        height,
+        weight,
+        age,
+      });
+      alert("Profile Saved Succesfully");
+      navigation.navigate("ProfilePage");
+    } catch (error: any) {
+      alert("Error saving Profile" + error.message);
+    }
+  };
   return (
-    <View style={{ flex: 1, backgroundColor: "#E6F5F1" }}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          paddingTop: 75,
-          marginBottom: 10,
-          paddingHorizontal: 30,
-        }}
-      >
+    <View style={styles.container}>
+      <View style={styles.header}>
         <TouchableOpacity>
           <FontAwesome
             name="chevron-left"
@@ -54,15 +75,8 @@ function EditInfo() {
           Name :
         </Text>
         <TextInput
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginRight: 5,
-            paddingLeft: 15,
-            borderColor: "black",
-            borderWidth: 1,
-            borderRadius: 30,
-          }}
+          onChangeText={(e) => setName(e)}
+          style={styles.input}
           placeholder="Enter Name"
         ></TextInput>
       </View>
@@ -73,15 +87,8 @@ function EditInfo() {
           E-mail :
         </Text>
         <TextInput
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginRight: 5,
-            paddingLeft: 15,
-            borderColor: "black",
-            borderWidth: 1,
-            borderRadius: 30,
-          }}
+          onChangeText={(e) => setEmail(e)}
+          style={styles.input}
           placeholder="Enter Email"
         ></TextInput>
       </View>
@@ -102,15 +109,8 @@ function EditInfo() {
           </Text>
         </View>
         <TextInput
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginRight: 5,
-            paddingLeft: 15,
-            borderColor: "black",
-            borderWidth: 1,
-            borderRadius: 30,
-          }}
+          onChangeText={(e) => setPhone(e)}
+          style={styles.input}
           placeholder="Enter phone no"
         ></TextInput>
       </View>
@@ -121,15 +121,8 @@ function EditInfo() {
           Height :
         </Text>
         <TextInput
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginRight: 5,
-            paddingLeft: 15,
-            borderColor: "black",
-            borderWidth: 1,
-            borderRadius: 30,
-          }}
+          onChangeText={(e) => setHeight(e)}
+          style={styles.input}
           placeholder="Enter Height"
         ></TextInput>
       </View>
@@ -140,15 +133,8 @@ function EditInfo() {
           Weight:
         </Text>
         <TextInput
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginRight: 5,
-            paddingLeft: 15,
-            borderColor: "black",
-            borderWidth: 1,
-            borderRadius: 30,
-          }}
+          onChangeText={(e) => setWeight(e)}
+          style={styles.input}
           placeholder="Enter Weight"
         ></TextInput>
       </View>
@@ -159,33 +145,13 @@ function EditInfo() {
           Age :
         </Text>
         <TextInput
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginRight: 5,
-            paddingLeft: 15,
-            borderColor: "black",
-            borderWidth: 1,
-            borderRadius: 30,
-          }}
+          onChangeText={(e) => setAge(e)}
+          style={styles.input}
           placeholder="Enter Age"
         ></TextInput>
       </View>
 
-      <TouchableOpacity
-        style={{
-          backgroundColor: "#26C3A6",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          height: 25,
-          width: 60,
-          alignSelf: "center",
-          borderRadius: 20,
-          marginTop: 30,
-        }}
-        onPress={() => navigation.navigate("ProfilePage")}
-      >
+      <TouchableOpacity style={styles.button} onPress={createProfile}>
         <View>
           <Text>Save</Text>
         </View>
@@ -195,3 +161,38 @@ function EditInfo() {
 }
 
 export default EditInfo;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#E6F5F1",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 75,
+    marginBottom: 10,
+    paddingHorizontal: 30,
+  },
+  input: {
+    flex: 1,
+    marginLeft: 5,
+    marginRight: 5,
+    paddingLeft: 15,
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 30,
+  },
+  button: {
+    backgroundColor: "#26C3A6",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 25,
+    width: 60,
+    alignSelf: "center",
+    borderRadius: 20,
+    marginTop: 30,
+  },
+});
