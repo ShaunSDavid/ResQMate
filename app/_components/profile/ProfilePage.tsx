@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   View,
@@ -13,6 +13,9 @@ import { Link, useRouter } from "expo-router";
 const profileImg = require("@/assets/images/photo.jpeg");
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import Dashboard from "../dashboard/Dashboard";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 type RootStackParamList = {
   Home: undefined;
@@ -22,6 +25,7 @@ type RootStackParamList = {
   FirstAid: { type: string };
   ProfilePage: undefined;
   EditInfo: undefined;
+  Dashboard: undefined;
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "ProfilePage">;
@@ -30,10 +34,36 @@ const ProfilePage = () => {
   const navigation = useNavigation<NavigationProp>();
   const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(true);
 
-  const handleLogout = () => {
-    setModalVisible(true);
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = FIREBASE_AUTH.currentUser;
+      if (!user) {
+        navigation.replace("Login");
+        return;
+      }
+      try {
+        const userRef = doc(FIREBASE_DB, "users", user.email!);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setUsername(userData.name);
+        } else {
+          setUsername("User");
+        }
+      } catch (error: any) {
+        alert("Error fetching Profile :" + error.message);
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const confirmLogout = () => {
     setModalVisible(false);
@@ -56,7 +86,7 @@ const ProfilePage = () => {
           paddingHorizontal: 30,
         }}
       >
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
           <FontAwesome name="chevron-left" size={25} />
         </TouchableOpacity>
         <Text style={{ fontSize: 22, fontWeight: "bold" }}>Your Profile</Text>
@@ -77,7 +107,7 @@ const ProfilePage = () => {
           style={{ width: 80, height: 80, borderRadius: 40, marginBottom: 10 }}
         />
         <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}>
-          Amelia Renata
+          {username}
         </Text>
       </View>
 
@@ -115,7 +145,17 @@ const ProfilePage = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={handleLogout}
+          onPress={async () => {
+            setLoading(true);
+            try {
+              await FIREBASE_AUTH.signOut();
+              navigation.replace("Login"); // Ensures the user cannot navigate back to Dashboard after logout
+            } catch (error: any) {
+              alert("Logout failed: " + error.message);
+            } finally {
+              setLoading(false);
+            }
+          }}
           style={{
             backgroundColor: "#fff",
             padding: 15,
