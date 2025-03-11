@@ -1,29 +1,32 @@
-import React, { useState } from "react";
+//
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   Dimensions,
-  Image,
+  StatusBar,
   ActivityIndicator,
+  Image,
 } from "react-native";
 const { width } = Dimensions.get("window");
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { FIREBASE_AUTH } from "@/FirebaseConfig";
+// Uncomment this when you have Firebase database set up
+// import { getDatabase, ref, onValue } from "firebase/database";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   Register: undefined;
   Dashboard: undefined;
-  FirstAidList: undefined;
-  FirstAid: { type: string };
   ProfilePage: undefined;
   EditInfo: undefined;
   Map: undefined;
+  Chatbot: undefined;
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
@@ -31,77 +34,103 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
 const Dashboard = () => {
   const navigation = useNavigation<NavigationProp>();
   const [loading, setLoading] = useState(false);
+  const [healthData, setHealthData] = useState({
+    heartRate: "No data available",
+    bloodPressure: "No data available",
+    bloodOxygen: "No data available",
+    bloodGlucose: "No data available",
+  });
+
+  // Effect for fetching data from Firebase
+  useEffect(() => {
+    // Uncomment and implement when Firebase is ready
+    /*
+    const db = getDatabase();
+    const healthRef = ref(db, 'healthMetrics');
+    
+    const unsubscribe = onValue(healthRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setHealthData({
+          heartRate: data.heartRate || "No data available",
+          bloodPressure: data.bloodPressure || "No data available",
+          bloodOxygen: data.bloodOxygen || "No data available",
+          bloodGlucose: data.bloodGlucose || "No data available",
+        });
+      }
+    });
+    
+    // Clean up listener on unmount
+    return () => unsubscribe();
+    */
+  }, []);
+
+  const healthMetrics = [
+    {
+      id: 1,
+      title: "Heart Rate",
+      color: "#FF4B8C",
+      data: healthData.heartRate,
+      icon: "❤️",
+    },
+    {
+      id: 2,
+      title: "Blood pressure",
+      color: "#FFA726",
+      data: healthData.bloodPressure,
+      icon: "💊",
+    },
+    {
+      id: 3,
+      title: "Blood oxygen",
+      color: "#5677FC",
+      data: healthData.bloodOxygen,
+      icon: "O₂",
+    },
+    {
+      id: 4,
+      title: "Blood Glucose",
+      color: "#FF4B8C",
+      data: healthData.bloodGlucose,
+      icon: "🩸",
+    },
+  ];
+
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#0F6D66" barStyle="light-content" />
+
       {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Find your desired health solution</Text>
+        <Text style={styles.headerTitle}>Dashboard</Text>
       </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search doctor, drugs, articles..."
-          placeholderTextColor="#B0B0B0"
-        />
+      {/* Health Metrics Cards */}
+      <View style={styles.metricsContainer}>
+        {healthMetrics.map((metric) => (
+          <View key={metric.id} style={styles.metricCard}>
+            <View style={styles.metricHeader}>
+              <View
+                style={[styles.iconContainer, { borderColor: metric.color }]}
+              >
+                <Text style={[styles.metricIconText, { color: metric.color }]}>
+                  {metric.icon}
+                </Text>
+              </View>
+              <Text style={[styles.metricTitle, { color: metric.color }]}>
+                {metric.title}
+              </Text>
+            </View>
+            <View style={styles.metricDataContainer}>
+              <Text style={[styles.metricData, { color: metric.color }]}>
+                {metric.data}
+              </Text>
+            </View>
+          </View>
+        ))}
       </View>
 
-      {/* Categories Section */}
-      <View style={styles.categoryContainer}>
-        <Text style={styles.categoryTitle}>Category</Text>
-        <View style={styles.categories}>
-          {[
-            {
-              name: "Symptom Check",
-              icon: require("@/assets/icons/symptom-icon.png"),
-              route: "FirstAidList",
-            },
-            {
-              name: "SoS",
-              icon: require("@/assets/icons/sos-icon.png"),
-              route: "Dashboard",
-            },
-            {
-              name: "Image Sensing",
-              icon: require("@/assets/icons/image-sensing-icon.png"),
-              route: "Dashboard",
-            },
-            {
-              name: "Voice Command",
-              icon: require("@/assets/icons/voice-command-icon.png"),
-              route: "Dashboard",
-            },
-            {
-              name: "Hospital",
-              icon: require("@/assets/icons/hospital-icon.png"),
-              route: "Map",
-            },
-          ].map((category, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.categoryItem}
-              onPress={() => {
-                if (category.route == "FirstAidList") {
-                  navigation.navigate("FirstAidList");
-                } else if (category.route == "Map") {
-                  navigation.navigate("Map");
-                } else {
-                  navigation.navigate("Dashboard");
-                }
-              }}
-            >
-              <Image
-                source={category.icon}
-                style={styles.categoryIcon}
-                resizeMode="contain"
-              />
-              <Text style={styles.categoryText}>{category.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-      {/* Logout Button at Bottom */}
+      {/* Log Out Button */}
       <View style={styles.logoutContainer}>
         {loading ? (
           <ActivityIndicator size="large" color="#0F6D66" />
@@ -124,6 +153,33 @@ const Dashboard = () => {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Bottom Navigation Bar - Updated to match the image */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate("Chatbot")}
+        >
+          <FontAwesome name="comment-o" size={24} color="#999999" />
+          <Text style={styles.navText}>Chatbot</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          // Dashboard is already active, no navigation needed
+        >
+          <FontAwesome name="home" size={24} color="#0F6D66" />
+          <Text style={styles.activeNavText}>Dashboard</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate("ProfilePage")}
+        >
+          <FontAwesome name="user-o" size={24} color="#999999" />
+          <Text style={styles.navText}>Mine</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -132,57 +188,61 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingTop: 50,
   },
   header: {
-    marginBottom: 20,
+    backgroundColor: "#0F6D66",
+    paddingTop: 40,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
   },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    textAlign: "center",
-  },
-  searchBarContainer: {
-    marginBottom: 20,
-  },
-  searchBar: {
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "#F5F5F5",
-    paddingHorizontal: 15,
-    fontSize: 14,
-    color: "#333",
-  },
-  categoryContainer: {
-    marginTop: 20,
-  },
-  categoryTitle: {
-    fontSize: 16,
+  headerTitle: {
+    fontSize: 21,
     fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
+    color: "#FFFFFF",
   },
-  categories: {
+  metricsContainer: {
+    flex: 1,
+    paddingHorizontal: 0,
+  },
+  metricCard: {
+    width: "100%",
+    backgroundColor: "#F5F5F5",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  metricHeader: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  categoryItem: {
-    width: width / 3 - 30, // Adjusted for consistent alignment
     alignItems: "center",
+    marginBottom: 15,
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderWidth: 2,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  metricIconText: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  metricTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  metricDataContainer: {
+    alignItems: "flex-end",
+  },
+  metricData: {
+    fontSize: 16,
+  },
+  logoutContainer: {
+    paddingHorizontal: 20,
     marginBottom: 20,
-  },
-  categoryIcon: {
-    width: 100, // Adjusted for proportional sizing
-    height: 100,
-    marginBottom: 10,
-  },
-  categoryText: {
-    fontSize: 14,
-    textAlign: "center",
-    color: "#666",
   },
   button: {
     width: "100%",
@@ -190,17 +250,38 @@ const styles = StyleSheet.create({
     backgroundColor: "#0F6D66",
     borderRadius: 8,
     alignItems: "center",
-    marginBottom: 10,
   },
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "bold",
   },
-  logoutContainer: {
-    flex: 1, // Takes the remaining space
-    justifyContent: "flex-end", // Pushes the button to the bottom
-    marginBottom: 20, // Adjust space from bottom
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#EEEEEE",
+    backgroundColor: "#FFFFFF",
+    height: 60,
+    paddingBottom: 5,
+  },
+  navButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    paddingTop: 10,
+  },
+  navText: {
+    fontSize: 12,
+    color: "#999999",
+    marginTop: 4,
+  },
+  activeNavText: {
+    fontSize: 12,
+    color: "#0F6D66",
+    fontWeight: "bold",
+    marginTop: 4,
   },
 });
 
