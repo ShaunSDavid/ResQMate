@@ -17,8 +17,6 @@ type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   Register: undefined;
-  FirstAidList: undefined;
-  FirstAid: { type: string };
   ProfilePage: undefined;
   EditInfo: undefined;
 };
