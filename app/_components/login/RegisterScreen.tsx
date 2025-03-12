@@ -24,7 +24,6 @@ const RegisterScreen = () => {
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
   const [form, setForm] = useState({
-    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -36,7 +35,7 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
     setLoading(true);
-    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+    if (!form.email || !form.password || !form.confirmPassword) {
       Alert.alert("Error", "Please fill in all fields.");
     } else if (form.password !== form.confirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
@@ -63,14 +62,6 @@ const RegisterScreen = () => {
       <Text style={styles.subtitle}>
         Create an account to start using ResQmate
       </Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Full Name"
-        placeholderTextColor="#888"
-        value={form.name}
-        onChangeText={(e) => handleInputChange("name", e)}
-      />
       <TextInput
         style={styles.input}
         placeholder="Email"
