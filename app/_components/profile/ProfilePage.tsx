@@ -14,9 +14,9 @@ import { Link, useRouter } from "expo-router";
 const profileImg = require("@/assets/images/photo.jpeg");
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import Dashboard from "../dashboard/Dashboard";
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/FirebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type RootStackParamList = {
   Home: undefined;
@@ -32,10 +32,8 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "ProfilePage">;
 
 const ProfilePage = () => {
   const navigation = useNavigation<NavigationProp>();
-  const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(" ");
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
@@ -46,17 +44,18 @@ const ProfilePage = () => {
         return;
       }
       try {
-        const userRef = doc(FIREBASE_DB, "users", user.email!);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUsername(userData.name);
+        const cachedUsername = await AsyncStorage.getItem("username");
+        if (cachedUsername) {
+          setUsername(cachedUsername);
+          setFetching(false);
+          updateUsernameinBackground(user.email);
         } else {
-          setUsername("User");
+          await fetchUsernameFromFirestore(user.email);
         }
       } catch (error: any) {
         alert("Error fetching Profile :" + error.message);
+        setUsername("User");
+        setFetching(false);
       } finally {
         setFetching(false);
       }
@@ -64,6 +63,48 @@ const ProfilePage = () => {
 
     fetchUserData();
   }, []);
+
+  const updateUsernameinBackground = async (email: string | null) => {
+    if (!email) return;
+
+    try {
+      const userRef = doc(FIREBASE_DB, "users", email!);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        AsyncStorage.setItem("username", userData.name);
+        if (userData.name !== username) {
+          setUsername(userData.name);
+        }
+      }
+    } catch (error: any) {
+      alert("Error fetching Background name:" + error.message);
+    }
+  };
+
+  const fetchUsernameFromFirestore = async (email: string | null) => {
+    if (!email) return;
+
+    try {
+      const userRef = doc(FIREBASE_DB, "users", email);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        setUsername(userData.name);
+        // Cache the username for future use
+        await AsyncStorage.setItem("username", userData.name);
+      } else {
+        setUsername("User");
+      }
+    } catch (error: any) {
+      alert("Error fetching Profile: " + error.message);
+      setUsername("User");
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const confirmLogout = () => {
     setModalVisible(false);
